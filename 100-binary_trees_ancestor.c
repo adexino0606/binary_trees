@@ -1,65 +1,55 @@
 #include "binary_trees.h"
 
 /**
- * binary_trees_ancestor - find the lowest common ancestor of 2 nodes
- * @first: first node
- * @second: second node
- * Return: pointer to lowest common ancestor, else NULL
+ * recursive_depth - measures the depth of a node in a binary tree
+ *
+ * @tree: tree root
+ * Return: depth of a node in a binary tree
+ */
+size_t recursive_depth(const binary_tree_t *tree)
+{
+	if (tree == NULL)
+		return (-1);
+
+	return (recursive_depth(tree->parent) + 1);
+}
+
+/**
+ * binary_tree_depth - calls recursive_depth to return the depth
+ * of a node in a binary tree
+ *
+ * @tree: tree root
+ * Return: depth of the tree or 0 if tree is NULL;
+ */
+size_t binary_tree_depth(const binary_tree_t *tree)
+{
+	if (tree == NULL)
+		return (0);
+
+	return (recursive_depth(tree));
+}
+
+/**
+ * binary_tree_uncle - finds the lowest common ancestor of two nodes
+ *
+ * @first: pointer to the first node
+ * @second: pointer to the second node
+ * Return: pointer to the lowest common ancestor
  */
 binary_tree_t *binary_trees_ancestor(const binary_tree_t *first,
 				     const binary_tree_t *second)
 {
-	int sz, sz2;
-
 	if (first == NULL || second == NULL)
 		return (NULL);
-	if (first->n == second->n)
+
+	if (first == second)
 		return ((binary_tree_t *)first);
 
-	sz = binary_tree_depth(first);
-	sz2 = binary_tree_depth(second);
-	if (sz > sz2)
-	{
-		while (sz > sz2)
-		{
-			first = first->parent;
-			if (first == NULL)
-				return (NULL);
-			sz = binary_tree_depth(first);
-		}
-	}
-	else if (sz2 > sz)
-	{
-		while (sz2 > sz)
-		{
-			second = second->parent;
-			if (second == NULL)
-				return (NULL);
-			sz2 = binary_tree_depth(second);
-		}
-	}
+	if (binary_tree_depth(first) > binary_tree_depth(second))
+		return (binary_trees_ancestor(first->parent, second));
 
-	while (first && second)
-	{
-		if (first->n == second->n)
-			return ((binary_tree_t *)first);
-		first = first->parent;
-		second = second->parent;
-	}
+	if (binary_tree_depth(first) < binary_tree_depth(second))
+		return (binary_trees_ancestor(first, second->parent));
 
-	return (NULL);
-}
-
-/**
- * binary_tree_depth - measure the depth of a node in a binary tree.
- * Depth is measured from root parent node going down.
- * @node: pointer to node to measure depth of
- * Return: depth of tree from given node
- */
-size_t binary_tree_depth(const binary_tree_t *node)
-{
-	if (node == NULL || node->parent == NULL)
-		return (0);
-
-	return (binary_tree_depth(node->parent) + 1);
+	return (binary_trees_ancestor(first->parent, second->parent));
 }
